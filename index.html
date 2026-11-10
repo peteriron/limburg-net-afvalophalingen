@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Afvalkalender</title>
+<meta name="description" content="Afvalophaling Kleistraat 26, 3740 Bilzen-Hoeselt">
+<meta name="theme-color" content="#f4f5f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16181a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Afval">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root {
+    --bg: #f4f5f2;
+    --card: #ffffff;
+    --text: #1d2125;
+    --muted: #6b7178;
+    --line: #e3e5e0;
+    --accent: #2f7d4f;
+    --today: #fff6d6;
+    --gft: #3f9a4a;
+    --pmd: #2f6fc0;
+    --papier: #c99a1e;
+    --huisvuil: #5b6168;
+    --other: #8a5cc2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181a;
+      --card: #202326;
+      --text: #eceeef;
+      --muted: #9aa1a8;
+      --line: #2e3236;
+      --accent: #5cc184;
+      --today: #3a3420;
+      --gft: #5bbd66;
+      --pmd: #5b97e6;
+      --papier: #e3b847;
+      --huisvuil: #9aa1a8;
+      --other: #b08be0;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 520px; margin: 0 auto; }
+  header { padding: 20px 0 12px; }
+  header h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+
+  .hero {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 18px;
+    margin: 8px 0 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  }
+  .hero .label { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  .hero .when { font-size: 28px; font-weight: 700; margin: 4px 0 2px; letter-spacing: -0.02em; }
+  .hero .date { color: var(--muted); font-size: 15px; }
+  .hero .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .hero .tip { margin-top: 12px; font-size: 14px; color: var(--accent); font-weight: 600; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 999px;
+    font-weight: 600; font-size: 15px;
+    color: #fff; background: var(--c);
+  }
+  .chip .ico { font-size: 16px; line-height: 1; }
+
+  .week { margin-bottom: 18px; }
+  .week h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); margin: 0 0 6px 4px; font-weight: 600;
+  }
+  .list { background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line); }
+  .row:first-child { border-top: 0; }
+  .row.today { background: var(--today); }
+  .day { width: 48px; flex: none; text-align: center; }
+  .day .dn { font-size: 12px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .day .dd { font-size: 22px; font-weight: 700; line-height: 1.1; }
+  .types { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .type { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--c); flex: none; }
+  .rel { margin-left: auto; font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+  .empty { color: var(--muted); padding: 14px; }
+  footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 20px; }
+  footer button {
+    background: none; border: 1px solid var(--line); color: var(--muted);
+    border-radius: 999px; padding: 6px 12px; font: inherit; margin-top: 8px;
+  }
+  .error { background: #fde8e8; color: #8a1f1f; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; font-size: 14px; }
+  @media (prefers-color-scheme: dark) { .error { background: #3a1f1f; color: #f3b5b5; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Afvalkalender</h1>
+    <p>Kleistraat 26 · 3740 Bilzen-Hoeselt</p>
+  </header>
+  <div id="error" class="error" hidden></div>
+  <section id="hero" class="hero" aria-live="polite"><div class="label">Laden…</div></section>
+  <section id="weeks"></section>
+  <footer>
+    <div id="updated"></div>
+    <button id="refresh" type="button">Vernieuwen</button>
+  </footer>
+</main>
+
+<script>
+(() => {
+  // --- Configuratie ---------------------------------------------------------
+  const ICS_URL = 'https://limburg.net/api-proxy/public/kalender-download/ical/73110'
+    + '?straatNummer=11219&huisNummer=26&toevoeging=&includeAllEventTypes=1'
+    + '&eventTypes[]=3&eventTypes[]=5&eventTypes[]=14&eventTypes[]=15';
+  const WEEKS_AHEAD = 6;
+  const CACHE_KEY = 'afval-ics-v1';
+  const CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000; // 12 uur
+
+  const TYPES = [
+    { match: /gft/i,               name: 'GFT',             color: 'var(--gft)',      ico: '🍂' },
+    { match: /pmd/i,               name: 'PMD',             color: 'var(--pmd)',      ico: '🧴' },
+    { match: /papier|karton/i,     name: 'Papier & karton', color: 'var(--papier)',   ico: '📦' },
+    { match: /huisvuil|rest/i,     name: 'Huisvuil',        color: 'var(--huisvuil)', ico: '🗑️' },
+  ];
+  const typeFor = (summary) =>
+    TYPES.find(t => t.match.test(summary)) ||
+    { name: summary.trim(), color: 'var(--other)', ico: '♻️' };
+
+  // --- Helpers --------------------------------------------------------------
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const DAY_MS = 86400000;
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const daysBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / DAY_MS);
+  const key = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const fmtLong = new Intl.DateTimeFormat('nl-BE', { weekday: 'long', day: 'numeric', month: 'long' });
+  const fmtDayName = new Intl.DateTimeFormat('nl-BE', { weekday: 'short' });
+  const fmtShort = new Intl.DateTimeFormat('nl-BE', { day: 'numeric', month: 'short' });
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // ISO week: maandag = start
+  const mondayOf = (d) => { const s = startOfDay(d); const wd = (s.getDay() + 6) % 7; return new Date(s.getTime() - wd * DAY_MS); };
+  const isoWeek = (d) => {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return Math.ceil(((t - yearStart) / DAY_MS + 1) / 7);
+  };
+
+  const relLabel = (n) => n === 0 ? 'Vandaag' : n === 1 ? 'Morgen' : n === 2 ? 'Overmorgen' : `Over ${n} dagen`;
+
+  // --- ICS parsen -----------------------------------------------------------
+  function parseICS(text) {
+    const lines = text.replace(/\r\n[ \t]/g, '').split(/\r?\n/); // unfold
+    const events = [];
+    let cur = null;
+    for (const line of lines) {
+      if (line === 'BEGIN:VEVENT') cur = {};
+      else if (line === 'END:VEVENT') { if (cur && cur.date && cur.summary) events.push(cur); cur = null; }
+      else if (cur) {
+        const i = line.indexOf(':');
+        if (i < 0) continue;
+        const prop = line.slice(0, i).split(';')[0].toUpperCase();
+        const val = line.slice(i + 1);
+        if (prop === 'DTSTART') {
+          const m = val.match(/^(\d{4})(\d{2})(\d{2})/);
+          if (m) cur.date = new Date(+m[1], +m[2] - 1, +m[3]);
+        } else if (prop === 'SUMMARY') {
+          cur.summary = val.replace(/\\,/g, ',').replace(/\\;/g, ';').replace(/\\n/gi, ' ').trim();
+        }
+      }
+    }
+    return events;
+  }
+
+  // --- Data ophalen (met cache voor offline gebruik) -----------------------
+  function readCache() {
+    try { const c = JSON.parse(localStorage.getItem(CACHE_KEY)); return c && c.text ? c : null; }
+    catch { return null; }
+  }
+  function writeCache(text) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ text, at: Date.now() })); } catch {}
+  }
+
+  async function load(force = false) {
+    const cached = readCache();
+    if (cached) render(cached.text, cached.at);
+    if (!force && cached && Date.now() - cached.at < CACHE_MAX_AGE_MS) return;
+    try {
+      const res = await fetch(ICS_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      if (!text.includes('BEGIN:VCALENDAR')) throw new Error('Ongeldig kalenderbestand');
+      writeCache(text);
+      $('error').hidden = true;
+      render(text, Date.now());
+    } catch (err) {
+      const box = $('error');
+      box.textContent = cached
+        ? `Kon niet vernieuwen (${err.message}). Laatst opgeslagen gegevens worden getoond.`
+        : `Kon de afvalkalender niet laden (${err.message}). Controleer je internetverbinding.`;
+      box.hidden = false;
+      if (!cached) $('hero').replaceChildren(el('div', 'label', 'Geen gegevens'));
+    }
+  }
+
+  // --- Weergave -------------------------------------------------------------
+  function chip(t) {
+    const c = el('span', 'chip');
+    c.style.setProperty('--c', t.color);
+    c.append(el('span', 'ico', t.ico), el('span', null, t.name));
+    return c;
+  }
+
+  function render(text, fetchedAt) {
+    const now = new Date();
+    const today = startOfDay(now);
+    const thisMonday = mondayOf(today);
+    const end = new Date(thisMonday.getTime() + WEEKS_AHEAD * 7 * DAY_MS);
+
+    // Groepeer per dag
+    const byDay = new Map();
+    for (const ev of parseICS(text)) {
+      if (ev.date < today || ev.date >= end) continue;
+      const k = key(ev.date);
+      if (!byDay.has(k)) byDay.set(k, { date: ev.date, types: [] });
+      const t = typeFor(ev.summary);
+      const day = byDay.get(k);
+      if (!day.types.some(x => x.name === t.name)) day.types.push(t);
+    }
+    const days = [...byDay.values()].sort((a, b) => a.date - b.date);
+
+    // Hero: eerstvolgende ophaling. Na 12u 's middags telt vandaag niet meer als "volgende".
+    const hero = $('hero');
+    hero.replaceChildren();
+    const next = days.find(d => daysBetween(today, d.date) > 0 || now.getHours() < 12) || null;
+    if (next) {
+      const n = daysBetween(today, next.date);
+      hero.append(
+        el('div', 'label', 'Volgende ophaling'),
+        el('div', 'when', relLabel(n)),
+        el('div', 'date', cap(fmtLong.format(next.date))),
+      );
+      const chips = el('div', 'chips');
+      next.types.forEach(t => chips.append(chip(t)));
+      hero.append(chips);
+      if (n === 1) hero.append(el('div', 'tip', 'Zet je afval vanavond buiten.'));
+      else if (n === 0) hero.append(el('div', 'tip', 'Vandaag: afval voor 6u buiten zetten.'));
+    } else {
+      hero.append(el('div', 'label', `Geen ophalingen in de komende ${WEEKS_AHEAD} weken`));
+    }
+
+    // Weken
+    const weeks = $('weeks');
+    weeks.replaceChildren();
+    for (let w = 0; w < WEEKS_AHEAD; w++) {
+      const mon = new Date(thisMonday.getTime() + w * 7 * DAY_MS);
+      const sun = new Date(mon.getTime() + 6 * DAY_MS);
+      const inWeek = days.filter(d => d.date >= mon && d.date <= sun);
+      const sec = el('section', 'week');
+      const title = w === 0 ? 'Deze week' : w === 1 ? 'Volgende week' : `Week ${isoWeek(mon)}`;
+      sec.append(el('h2', null, `${title} · ${fmtShort.format(mon)} – ${fmtShort.format(sun)}`));
+      const list = el('div', 'list');
+      if (!inWeek.length) list.append(el('div', 'empty', 'Geen ophaling'));
+      for (const d of inWeek) {
+        const n = daysBetween(today, d.date);
+        const row = el('div', 'row' + (n === 0 ? ' today' : ''));
+        const day = el('div', 'day');
+        day.append(el('div', 'dn', fmtDayName.format(d.date).replace('.', '')), el('div', 'dd', String(d.date.getDate())));
+        const types = el('div', 'types');
+        for (const t of d.types) {
+          const r = el('div', 'type');
+          const dot = el('span', 'dot');
+          dot.style.setProperty('--c', t.color);
+          r.append(dot, el('span', null, t.name));
+          types.append(r);
+        }
+        row.append(day, types, el('div', 'rel', n <= 2 ? relLabel(n) : `${n} d`));
+        list.append(row);
+      }
+      sec.append(list);
+      weeks.append(sec);
+    }
+
+    $('updated').textContent = 'Bijgewerkt: ' + new Intl.DateTimeFormat('nl-BE', {
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+    }).format(new Date(fetchedAt));
+  }
+
+  $('refresh').addEventListener('click', () => load(true));
+  // Opnieuw tekenen wanneer de app terug in beeld komt (datum kan veranderd zijn)
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+  load();
+})();
+</script>
+</body>
+</html>

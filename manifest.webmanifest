@@ -1,0 +1,11 @@
+{
+  "name": "Afvalkalender Kleistraat 26",
+  "short_name": "Afval",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f5f2",
+  "theme_color": "#2f7d4f",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
